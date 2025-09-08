@@ -1,28 +1,26 @@
 import {Request, Response} from 'express';
 import {Employee, EmployeeDto} from "../model/Employee.js";
-import {convertEmployeeDtoToEmployee} from "../utils/tools.js";
-import {accountServiceMongo} from "../services/accountServiceImplMongo.js";
-import {FiredEmployeeModel} from "../model/EmployeeMongooseModel.js";
+import {checkRole, convertEmployeeDtoToEmployee, formatTimeStamp} from "../utils/tools.js";
+import {accountService} from "../services/accountServiceImplMongo.js";
+import {EmployeeModel, FiredEmployeeModel} from "../model/EmployeeMongooseModel.js";
 
-export const addAccount = async (req: Request, res: Response) => {
+
+export const hireEmployee = async (req: Request, res: Response) => {
     const body = req.body as EmployeeDto;
     const employee: Employee = convertEmployeeDtoToEmployee(body);
+    await accountService.hireEmployee(employee);
 
-    await accountServiceMongo.hireEmployee(employee);
     const firedEmpl = await FiredEmployeeModel.findById(employee._id);
     if(firedEmpl) {
-        res.json({
-            employee,
-            message:"Employee worked in company before"
-        })
+        res.json({employee, message:"Employee worked in company before"});
     }else{
         res.json(employee);
     }
 };
 
-export const removeAccount = async (req: Request, res: Response) => {
+export const fireEmployee = async (req: Request, res: Response) => {
     const {id} = req.query;
-    const firedEmployee = await accountServiceMongo.fireEmployee(id as string);
+    const firedEmployee = await accountService.fireEmployee(id as string);
     res.json(firedEmployee);
 };
 
@@ -36,15 +34,20 @@ export const changePassword = (req: Request, res: Response) =>{
 
 export const getAccountById = async (req: Request, res: Response) => {
     const {id} = req.query;
-    const account = await accountServiceMongo.getEmployeeById(id as string);
-    res.json(account);
+    const account = await accountService.getEmployeeById(id as string);
+
+    const employee = {...account, hiredDate: formatTimeStamp(account.hiredDate)};
+    res.json(employee);
 };
 
 export const getAllAccounts = async (req: Request, res: Response) => {
-    const employees = await accountServiceMongo.getAllEmployees();
+    const employees = await accountService.getAllEmployees();
     res.json(employees);
 };
 
-export const setRole = (req: Request, res: Response) =>{
-
+export const setRole = async (req: Request, res: Response) => {
+    const {id} = req.query;
+    const role = checkRole(req.body.role);
+    const employee = await accountService.setRole(id as string, role);
+    res.json(employee);
 };

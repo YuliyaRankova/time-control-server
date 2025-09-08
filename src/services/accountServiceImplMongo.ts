@@ -2,16 +2,18 @@ import {AccountingService} from "./accountService.js";
 import {Employee, EmployeeDto, FiredEmployee, SavedFiredEmployee} from "../model/Employee.js";
 import {EmployeeModel, FiredEmployeeModel} from "../model/EmployeeMongooseModel.js";
 import {HttpError} from "../errorHandler/HttpError.js";
+import {checkRole} from "../utils/tools.js";
 
 export class AccountServiceImplMongo implements AccountingService{
 
     async hireEmployee(employee: Employee): Promise<Employee> {
-        const empl = await EmployeeModel.findById(employee._id);
-        if (empl) throw new HttpError(409, "Employee already exists");
+        const empl = await EmployeeModel.findById(employee._id).exec();
+        if (empl) throw new HttpError(409, `Employee with id ${empl._id} already exists`);
 
+        // await checkFiredEmployees(employee._id);
         const employeeDoc = new EmployeeModel(employee);
         await employeeDoc.save();
-        return employeeDoc;
+        return employee;
     };
 
     async fireEmployee(empId: string): Promise<SavedFiredEmployee> {
@@ -20,7 +22,7 @@ export class AccountServiceImplMongo implements AccountingService{
 
         const firedHistory = await FiredEmployeeModel.find({ _id: empId }).exec();
         const alreadyFired = firedHistory.find(
-            f => f.firedDate.getTime() >= empl.hiredDate.getTime());
+            f => f.firedDate >= empl.hiredDate);
 
         if(alreadyFired) throw new HttpError(409, "Employee already fired");
 
@@ -46,7 +48,7 @@ export class AccountServiceImplMongo implements AccountingService{
     };
 
     async getEmployeeById(id: string): Promise<Employee> {
-        const employee = await EmployeeModel.findById(id);
+        const employee = await EmployeeModel.findById(id).lean();
         if(!employee) throw new HttpError(404, "Employee not found");
         return employee;
     };
@@ -57,7 +59,8 @@ export class AccountServiceImplMongo implements AccountingService{
 
         const activeEmployees:Employee[] = employees.map(empl => ({
             _id:empl._id,
-            passHash:empl.passHash,
+            table_num: empl.table_num,
+            hash:empl.hash,
             firstName:empl.firstName,
             lastName:empl.lastName,
             hiredDate:empl.hiredDate,
@@ -75,10 +78,15 @@ export class AccountServiceImplMongo implements AccountingService{
         return [...activeEmployees, ...firedEmployees];
     };
 
-    setRole(id: string, newRole: string): Promise<Employee> {
-        throw "";
+    async setRole(id: string, newRole: string): Promise<Employee> {
+        const employee = await this.getEmployeeById(id);
+        const updated = await EmployeeModel.findOneAndUpdate({_id:employee._id}, {
+            $set: {role: newRole}
+        }, {new: true}).lean().exec();
+        if (!updated) throw new HttpError(404, "Employee updating failed!");
+        return updated as Employee;
     };
 
 };
 
-export const accountServiceMongo = new AccountServiceImplMongo();
+export const accountService = new AccountServiceImplMongo();

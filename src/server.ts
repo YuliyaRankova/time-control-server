@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import {configuration} from "./config/appConfig.js";
 import {errorHandler} from "./errorHandler/errorHandler.js";
 import {accountRouter} from "./routes/accountRouter.js";
+import {shiftRouter} from "./routes/shiftRouter.js";
 
 export const launchServer = () => {
     dotenv.config();
@@ -12,6 +13,7 @@ export const launchServer = () => {
     app.use(express.json());
 
     app.use("/accounts", accountRouter);
+    app.use("/shift", shiftRouter);
     app.use((req: Request, res: Response) => {
         res.status(404).send("Page not found")
     });
