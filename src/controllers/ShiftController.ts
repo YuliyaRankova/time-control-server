@@ -3,12 +3,20 @@ import {shiftService} from "../services/shiftControlImplMongo.js";
 import {formatTimeStamp} from "../utils/tools.js";
 
 export const startShift = async (req: Request, res: Response) => {
-   const {tab_num} = req.query;
-   const result = await shiftService.startShift(tab_num as string);
+    const {tab_num, shift_dur} = req.query;
+    const result = await shiftService.startShift(tab_num as string, shift_dur as unknown as number);
 
-   const shift = {...result, time: formatTimeStamp(result.time)};
-   res.json(shift);
+    const shift = {...result, time: formatTimeStamp(result.time)};
+    res.json(shift);
 };
+
+// export const startShift = async (req: Request, res: Response) => {
+//    const {tab_num} = req.query;
+//    const result = await shiftService.startShift(tab_num as string);
+//
+//    const shift = {...result, time: formatTimeStamp(result.time)};
+//    res.json(shift);
+// };
 
 export const finishShift = async (req: Request, res: Response) => {
     const {tab_num} = req.query;

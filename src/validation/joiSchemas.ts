@@ -23,6 +23,11 @@ export const SetRoleSchema = Joi.object({
 });
 
 //================================== Shift Schemas ==========================
+export const StartShiftSchema = Joi.object({
+    tab_num:Joi.string().required(),
+    shift_dur: Joi.number().required()
+});
+
 export const TabNumSchema = Joi.object({
     tab_num:Joi.string().required()
 });
