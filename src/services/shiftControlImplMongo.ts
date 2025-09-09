@@ -96,8 +96,9 @@ export class ShiftControlImplMongo implements ShiftControlService{
         return currStaff;
     };
 
-    async getEmployeeShift(tab_n: string): Promise<CurrentCrewShift> {
-        const shiftDoc = await ShiftModel.findOne({_tab_num: tab_n}).lean().exec();
+    async getEmployeeActiveShift(tab_n: string): Promise<CurrentCrewShift> {
+        const shiftDoc = await ShiftModel.findOne(
+            {_tab_num: tab_n, finishShift: null}).lean().exec();
         if(!shiftDoc) throw new HttpError(404, `Employee with tab num: ${tab_n} not found`);
 
         const activeShift = {

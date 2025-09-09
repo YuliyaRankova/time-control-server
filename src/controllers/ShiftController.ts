@@ -41,9 +41,9 @@ export const getCurrentShiftStaff = async (req: Request, res: Response) => {
     res.json(currShift);
 };
 
-export const getEmployeeShift = async (req: Request, res: Response) => {
+export const getEmployeeActiveShift = async (req: Request, res: Response) => {
     const {tab_num} = req.query;
-    const result = await shiftService.getEmployeeShift(tab_num as string);
+    const result = await shiftService.getEmployeeActiveShift(tab_num as string);
     const shift = {...result, startShift: formatTimeStamp(result.startShift)};
     res.json(shift);
 };
