@@ -1,15 +1,15 @@
 import {ShiftControlService} from "./shiftControlService.js";
-import {CrewShift, CurrentCrewShift, Shift} from "../model/CrewShift.js";
+import {CurrentCrewShift, Shift} from "../model/CrewShift.js";
 import {HttpError} from "../errorHandler/HttpError.js";
 import {ShiftModel} from "../model/ShiftMongooseModel.js";
 import {formatTimeStamp, generateShiftId, getDuration} from "../utils/tools.js";
-import {startShift} from "../controllers/ShiftController.js";
+import {ShiftDur} from "../utils/appTypes.js";
 
 export class ShiftControlImplMongo implements ShiftControlService{
 
     async startShift(tab_n: string): Promise<Shift> {
         const crewShift = await ShiftModel.findOne({_tab_num:tab_n}).exec();
-        if(crewShift && crewShift.startShift) throw new HttpError(404,
+        if(crewShift && crewShift.startShift && crewShift.finishShift === null) throw new HttpError(404,
             `Employee with tab num: ${tab_n} already started the shift at ${formatTimeStamp(crewShift.startShift)}`);
 
         const newShiftDoc = new ShiftModel({
@@ -68,8 +68,8 @@ export class ShiftControlImplMongo implements ShiftControlService{
         if (!shiftDoc) throw new HttpError(404, `Employee with tab num: ${tab_n_crew} not found`);
 
         const duration = getDuration(shiftDoc.startShift);
-        if(shiftDoc.shift_id === shift_id && shiftDoc.finishShift === null && duration > 360){
-            const correctedFinishShift = shiftDoc.startShift + 360*60*1000;
+        if(shiftDoc.shift_id === shift_id && shiftDoc.finishShift === null && duration > ShiftDur.SHIFT_360){
+            const correctedFinishShift = shiftDoc.startShift + ShiftDur.SHIFT_360*60*1000;
 
             await ShiftModel.findOneAndUpdate(
                 {_tab_num: tab_n_crew},
@@ -110,7 +110,7 @@ export class ShiftControlImplMongo implements ShiftControlService{
         return activeShift;
     };
 
-    // async getAllCrewShifts(tab_n: string): Promise<CrewShift[]> {
+    // async getAllEmployeeShifts(tab_n: string): Promise<CrewShift[]> {
     //     const shifts = await ShiftModel.find({table_num: tab_n}).exec();
     // }
 
