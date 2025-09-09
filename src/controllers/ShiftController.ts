@@ -25,7 +25,9 @@ export const setBreak = async (req: Request, res: Response) => {
 };
 
 export const correctShift = async (req: Request, res: Response) => {
-
+   const {tab_n_crew, tab_n_mng, shift_id} = req.body;
+   await shiftService.correctShift(tab_n_crew, tab_n_mng, shift_id);
+   res.status(200).send("Correction fulfilled successfully");
 };
 
 export const getCurrentShiftStaff = async (req: Request, res: Response) => {

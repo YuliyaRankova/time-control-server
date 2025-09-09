@@ -80,9 +80,11 @@ export class AccountServiceImplMongo implements AccountingService{
 
     async setRole(id: string, newRole: string): Promise<Employee> {
         const employee = await this.getEmployeeById(id);
-        const updated = await EmployeeModel.findOneAndUpdate({_id:employee._id}, {
-            $set: {role: newRole}
-        }, {new: true}).lean().exec();
+        const updated = await EmployeeModel.findOneAndUpdate(
+            {_id:employee._id},
+            {$set: {role: newRole}},
+            {new: true}
+        ).lean().exec();
         if (!updated) throw new HttpError(404, "Employee updating failed!");
         return updated as Employee;
     };

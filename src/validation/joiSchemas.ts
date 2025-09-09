@@ -1,5 +1,5 @@
 import Joi from 'joi'
-import {Roles} from "../utils/wtTypes.js";
+import {Roles} from "../utils/appTypes.js";
 
 //================================== Accounting Schemas ==========================
 export const EmployeeDtoSchema = Joi.object({
@@ -29,15 +29,20 @@ export const TabNumSchema = Joi.object({
 
 export const BreakSchema = Joi.object({
     tab_num:Joi.string().required(),
-    shift_break: Joi.number().required()
+    shift_break:Joi.number().required()
 });
 
 export const CorrectionSchema = Joi.object({
     tab_n_crew:Joi.string().required(),
-    tab_n_mng: Joi.string().required(),
-    start:Joi.number().required(),
-    finish:Joi.number().required(),
-    date:Joi.number().required()
+    tab_n_mng:Joi.string().required(),
+    shift_id:Joi.number().required()
 });
+// export const CorrectionSchema = Joi.object({
+//     tab_n_crew:Joi.string().required(),
+//     tab_n_mng: Joi.string().required(),
+//     start:Joi.number().required(),
+//     finish:Joi.number().required(),
+//     date:Joi.number().required()
+// });
 
 

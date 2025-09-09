@@ -2,7 +2,8 @@ import {ShiftControlService} from "./shiftControlService.js";
 import {CrewShift, CurrentCrewShift, Shift} from "../model/CrewShift.js";
 import {HttpError} from "../errorHandler/HttpError.js";
 import {ShiftModel} from "../model/ShiftMongooseModel.js";
-import {formatTimeStamp, generateShiftId} from "../utils/tools.js";
+import {formatTimeStamp, generateShiftId, getDuration} from "../utils/tools.js";
+import {startShift} from "../controllers/ShiftController.js";
 
 export class ShiftControlImplMongo implements ShiftControlService{
 
@@ -40,7 +41,7 @@ export class ShiftControlImplMongo implements ShiftControlService{
             {_tab_num: tab_n},
             {$set: {finishShift: finish, shiftDuration: durationInMinutes}},
             {new:true}
-        ).lean().exec();
+        ).exec();
         if(!updatedShiftDoc) throw new HttpError(404, "Finish shift updating failed!");
 
         const updatedShift = {
@@ -59,11 +60,28 @@ export class ShiftControlImplMongo implements ShiftControlService{
             {_tab_num: tab_n},
             {$inc: {breaks: shift_break}},
             {new:true}
-        ).lean().exec();
+        ).exec();
     };
 
-    correctShift(tab_n_crew: string, tab_n_mng: string, start: number, finish: number, date: number): void {
-    }
+    async correctShift(tab_n_crew: string, tab_n_mng: string, shift_id: number): Promise<void> {
+        const shiftDoc = await ShiftModel.findOne({_tab_num: tab_n_crew}).exec();
+        if (!shiftDoc) throw new HttpError(404, `Employee with tab num: ${tab_n_crew} not found`);
+
+        const duration = getDuration(shiftDoc.startShift);
+        if(shiftDoc.shift_id === shift_id && shiftDoc.finishShift === null && duration > 360){
+            const correctedFinishShift = shiftDoc.startShift + 360*60*1000;
+
+            await ShiftModel.findOneAndUpdate(
+                {_tab_num: tab_n_crew},
+                {$set: {finishShift: correctedFinishShift,
+                        сorrect: tab_n_mng,
+                        shiftDuration: Math.floor((correctedFinishShift - shiftDoc.startShift) / 1000 / 60)}},
+                {new: true}
+            ).exec();
+        }
+    };
+    // correctShift(tab_n_crew: string, tab_n_mng: string, start: number, finish: number, date: number): void {
+    // }
 
     async getCurrentShiftStaff(): Promise<CurrentCrewShift[]> {
         const staffDocs = await ShiftModel.find().lean().exec();

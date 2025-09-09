@@ -1,6 +1,6 @@
 import {Employee, EmployeeDto} from "../model/Employee.js";
 import bcrypt from "bcryptjs";
-import {Roles} from "./wtTypes.js";
+import {Roles} from "./appTypes.js";
 import {v4 as uuidv4} from 'uuid';
 import {HttpError} from "../errorHandler/HttpError.js";
 
@@ -41,6 +41,11 @@ export const generateShiftId = (date: Date): number => {
     return newShift;
 };
 
+export const getDuration = (startTime: number) =>{
+    const finishTime = Date.now();
+    const duration = Math.floor((finishTime - startTime) / 1000 / 60);
+    return duration;
+};
 
 // export const checkFiredEmployees = async (id: string) => {
 //     return async (req: Request, res: Response) => {

@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-import {Roles} from "../utils/wtTypes.js";
+import {Roles} from "../utils/appTypes.js";
 import {v4 as uuidv4} from "uuid";
 
 const employeeMongoSchema = new mongoose.Schema({

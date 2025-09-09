@@ -1,4 +1,4 @@
-import {Roles} from "../utils/wtTypes.js";
+import {Roles} from "../utils/appTypes.js";
 
 export type EmployeeDto = {
     firstName:string,
