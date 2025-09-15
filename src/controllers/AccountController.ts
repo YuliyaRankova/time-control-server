@@ -1,46 +1,44 @@
 import {Request, Response} from 'express';
-import {Employee, EmployeeDto} from "../model/Employee.js";
+import {Employee, EmployeeDto, UpdateEmployeeDto} from "../model/Employee.js";
 import {checkRole, convertEmployeeDtoToEmployee, formatTimeStamp} from "../utils/tools.js";
-import {accountService} from "../services/accountServiceImplMongo.js";
-import {EmployeeModel, FiredEmployeeModel} from "../model/EmployeeMongooseModel.js";
+import {accountService} from "../services/accountingService/accountServiceImplMongo.js";
+import {consoleLogger} from "../Logger/winston.js";
 
 
 export const hireEmployee = async (req: Request, res: Response) => {
-    const body = req.body as EmployeeDto;
-    const employee: Employee = convertEmployeeDtoToEmployee(body);
-    await accountService.hireEmployee(employee);
-
-    const firedEmpl = await FiredEmployeeModel.findById(employee._id);
-    if(firedEmpl) {
-        res.json({employee, message:"Employee worked in company before"});
-    }else{
-        res.json(employee);
-    }
+    const body = req.body;
+    const emp: Employee = convertEmployeeDtoToEmployee(body as EmployeeDto);
+    const result = await accountService.hireEmployee(emp);
+    res.status(201).json(result);
 };
 
 export const fireEmployee = async (req: Request, res: Response) => {
-    const {id} = req.query;
-    const firedEmployee = await accountService.fireEmployee(id as string);
-    res.json(firedEmployee);
+    const query_id = req.query.id;
+    const result = await accountService.fireEmployee(query_id as string);
+    res.json(result);
 };
 
-export const updateEmployee = (req: Request, res: Response) =>{
-
+export const updateEmployee = async (req: Request, res: Response) => {
+    const query_id = req.query.id;
+    const newData = req.body;
+    const result = await accountService.updateEmployee(query_id as string, newData as UpdateEmployeeDto);
+    res.json(result);
 };
 
-export const changePassword = (req: Request, res: Response) =>{
-
+export const changePassword = async (req: Request, res: Response) => {
+    const {id, newPassword} = req.body;
+    consoleLogger.info(`id: ${id}, newPassword: ${newPassword}`);
+    await accountService.changePassword(id, newPassword);
+    res.status(200).send();
 };
 
-export const getAccountById = async (req: Request, res: Response) => {
-    const {id} = req.query;
-    const account = await accountService.getEmployeeById(id as string);
-
-    const employee = {...account, hiredDate: formatTimeStamp(account.hiredDate)};
-    res.json(employee);
+export const getEmployeeById = async (req: Request, res: Response) => {
+    const query_id = req.query.id;
+    const result = await accountService.getEmployeeById(query_id as string);
+    res.json(result);
 };
 
-export const getAllAccounts = async (req: Request, res: Response) => {
+export const getAllEmployees = async (req: Request, res: Response) => {
     const employees = await accountService.getAllEmployees();
     res.json(employees);
 };
@@ -48,6 +46,7 @@ export const getAllAccounts = async (req: Request, res: Response) => {
 export const setRole = async (req: Request, res: Response) => {
     const {id} = req.query;
     const role = checkRole(req.body.role);
-    const employee = await accountService.setRole(id as string, role);
-    res.json(employee);
+    consoleLogger.info(`role: ${role}`)
+    const result = await accountService.setRole(id as string, role);
+    res.json(result);
 };

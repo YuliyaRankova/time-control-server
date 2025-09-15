@@ -1,15 +1,14 @@
 import * as mongoose from "mongoose";
-import {v4 as uuidv4} from "uuid";
 
 const ShiftMongoSchema = new mongoose.Schema({
-    _tab_num: {type: String, required:true},
-    shift_id: {type: Number, required:true}, // generate?
-    startShift: {type: Number, required:true},//timestamp shift start time
-    finishShift: {type: Number, default:null},
-    shiftDuration: {type: Number, required:true}, // store in minutes?
-    breaks: {type: Number, required:true}, //15 или 30
-    сorrect: {type: String, default:null},
-    monthHours: {type: Number, required:true} // накопление рабочего времени с начала месяца
+    _id: {type:Number,require:true},
+    startShift:{type:Number,require:true}, //timestamp shift start time
+    finishShift: {type:Number,default:null},  //timestamp shift finish time
+    table_num: {type:String, require:true},
+    shiftDuration: {type:Number,default:0},
+    breaks: {type:Number,default:null}, // решили, что это просто накопление перерывов, длительность которых фиксирована и может быть  = 15 или 30
+    сorrect: {type:String, default:null}, //mng table_num
+    monthHours: {type:Number,default:0}
 });
 
-export const ShiftModel = mongoose.model("Shift", ShiftMongoSchema, "shift_collection");
+export const ShiftModel = mongoose.model("Shift", ShiftMongoSchema, "shifts_collection");

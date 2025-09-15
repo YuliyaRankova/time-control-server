@@ -8,32 +8,25 @@ export type EmployeeDto = {
 };
 
 export type Employee = {
-    _id:string,
+    firstName: string,
+    lastName: string,
+    _id: string,
     table_num: string,
-    // hash:string,
-    hash:string,
-    firstName:string,
-    lastName:string,
-    hiredDate:number,
-    role:Roles
+    hash: string,
+    roles: Roles
 };
 
-export type FiredEmployee ={
-    _id:string,
-    status:string,
-    // firstName:string,
-    // lastName:string,
-    firedDate:number,
-    hiredDate:number,
-    role:Roles
+export type SavedFiredEmployee = {
+    firstName: string,
+    lastName: string,
+    _id: string,
+    table_num:string,
+    fireDate?:string,
 };
 
-// export type SavedFiredEmployee ={
-//     firstName:string,
-//     lastName:string,
-//     _id:string,
-//     table_num: string,
-//     fireDate?:string
-// };
+export type UpdateEmployeeDto = {
+    firstName: string,
+    lastName: string,
+};
 
-export type SavedFiredEmployee = Employee | FiredEmployee
+// export type SavedFiredEmployee = Employee | FiredEmployee

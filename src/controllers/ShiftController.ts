@@ -1,57 +1,56 @@
 import {Request, Response} from "express";
-import {shiftService} from "../services/shiftControlImplMongo.js";
-import {formatTimeStamp} from "../utils/tools.js";
+import {shiftService} from "../services/timeControlService/shiftControlImplMongo.js";
+import {accountService} from "../services/accountingService/accountServiceImplMongo.js";
+import {consoleLogger, logger} from "../Logger/winston.js";
 
 export const startShift = async (req: Request, res: Response) => {
-    const {tab_num, shift_dur} = req.query;
-    const result = await shiftService.startShift(tab_num as string, shift_dur as unknown as number);
-
-    const shift = {...result, time: formatTimeStamp(result.time)};
-    res.json(shift);
+    consoleLogger.info(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    const tabNum = req.query.tabNum as string;
+    const emp = await accountService.getEmployeeByTabNum(tabNum);
+    const result = await shiftService.startShift(tabNum);
+    res.json(result);
 };
 
-// export const startShift = async (req: Request, res: Response) => {
-//    const {tab_num} = req.query;
-//    const result = await shiftService.startShift(tab_num as string);
-//
-//    const shift = {...result, time: formatTimeStamp(result.time)};
-//    res.json(shift);
-// };
-
 export const finishShift = async (req: Request, res: Response) => {
-    const {tab_num} = req.query;
-    const result = await shiftService.finishShift(tab_num as string);
-
-    const shift = {...result, time: formatTimeStamp(result.time), shiftDuration: result.shiftDuration};
-    res.json(shift);
+    consoleLogger.info(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    const tabNum = req.query.tabNum as string;
+    const result = await shiftService.finishShift(tabNum);
+    res.status(201).json(result);
 };
 
 export const setBreak = async (req: Request, res: Response) => {
-   const {tab_num, shift_break} = req.query;
-   await shiftService.setBreak(tab_num as string, Number(shift_break));
-   res.status(200).send("Break updated successfully");
+    consoleLogger.info(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+   const {tabNum, breakDur} = req.query;
+   await shiftService.setBreak(tabNum as string, Number(breakDur));
+   res.send("Ok");
 };
 
 export const correctShift = async (req: Request, res: Response) => {
-   const {tab_n_crew, tab_n_mng, shift_id} = req.body;
-   await shiftService.correctShift(tab_n_crew, tab_n_mng, shift_id);
+    consoleLogger.info(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+   const {tabNumCrew, tabNumMng, start, finish, date} = req.body;
+   await shiftService.correctShift(tabNumCrew, tabNumMng, start, finish, date);
    res.status(200).send("Correction fulfilled successfully");
 };
 
 export const getCurrentShiftStaff = async (req: Request, res: Response) => {
+    consoleLogger.info(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
     const currentStaff = await shiftService.getCurrentShiftStaff();
-
-    const currShift = currentStaff.map(crew => ({
-        ...crew,
-        startShift: formatTimeStamp(crew.startShift),
-        finishShift: crew.finishShift? formatTimeStamp(crew.finishShift) : null,
+    const formatted = currentStaff.map(emp => ({
+        ...emp,
+        startShift: new Date(emp.startShift).toTimeString(),
     }));
-    res.json(currShift);
+    res.json(formatted);
 };
 
-export const getEmployeeActiveShift = async (req: Request, res: Response) => {
-    const {tab_num} = req.query;
-    const result = await shiftService.getEmployeeActiveShift(tab_num as string);
-    const shift = {...result, startShift: formatTimeStamp(result.startShift)};
-    res.json(shift);
+export const getEmployeeShift = async (req: Request, res: Response) => {
+    consoleLogger.info(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    const tabNum = req.query.tabNum as string;
+    const empShift = await shiftService.getEmployeeShift(tabNum);
+    const formatted = ({
+        ...empShift,
+        startShift: new Date(empShift.startShift).toTimeString(),
+        finishShift: empShift.finishShift ? new Date(empShift.finishShift).toTimeString() : null,
+        shiftDuration: empShift.shiftDuration ? Math.floor(empShift.shiftDuration / (1000 * 60)) : null
+    });
+    res.json(formatted);
 };

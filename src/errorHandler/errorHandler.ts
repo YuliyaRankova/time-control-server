@@ -1,14 +1,14 @@
 import {Request, Response, NextFunction} from "express";
 import {HttpError} from "./HttpError.ts";
+import {logger} from "../Logger/winston.js";
 
 export const errorHandler = (err:Error, req:Request, res:Response, next:NextFunction) =>{
-    console.error("Error caught by middleware:");
-    console.error("Name:", err.name);
-    console.error("Message:", err.message);
-    console.error("Stack:", err.stack);
-    console.error("Instance of HttpError:", err instanceof HttpError);
-
-    if(err instanceof HttpError)
-        res.status(err.status).send(err.message)
-    else res.status(500).send("Unknown server error!")
+    if(err instanceof HttpError){
+        logger.error(`[${new Date().toISOString()}] ${req.method} ${req.url} - ${err.status} - ${err.message}`);
+        res.status(err.status).send(err.message);
+    }
+    else{
+        logger.error(`[${new Date().toISOString()}] ${req.method} ${req.url} - Unknown server error!`);
+        res.status(500).send("Unknown server error!");
+    }
 };
