@@ -4,14 +4,29 @@ import {configuration} from "./config/appConfig.js";
 import {errorHandler} from "./errorHandler/errorHandler.js";
 import {accountRouter} from "./routes/accountRouter.js";
 import {shiftRouter} from "./routes/shiftRouter.js";
+import morgan from "morgan";
+import swaggerUi from "swagger-ui-express";
+import swaggerDoc from "../docs/openapi.json" with {type: "json"};
 
 export const launchServer = () => {
     dotenv.config();
     const app = express();
-    app.listen(configuration.port, () => console.log(`Server runs at http://localhost:${configuration.port}`))
+    app.listen(configuration.port, () => console.log(`Server runs at http://localhost:${configuration.port}`));
+    //============ Security Middleware ===========
 
+    //============ Middlewares ===================
     app.use(express.json());
-
+    app.use(morgan("dev"));
+    //============ Swagger Docs =================
+    app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc
+    //     , {
+    //     swaggerOptions:{
+    //         supportedSubmitMethods:[]
+    //     }
+    // }
+        //
+    ));
+    //============ Routers ======================
     app.use("/accounts", accountRouter);
     app.use("/shift", shiftRouter);
     app.use((req: Request, res: Response) => {

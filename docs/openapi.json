@@ -1,0 +1,555 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Time control API",
+    "description": "Web API for small business time controlling",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Development local server"
+    }
+  ],
+  "paths": {
+    "/accounts": {
+      "get": {
+        "summary": "Get single Employee",
+        "description": "Endpoint for getting employee account by Id",
+        "tags": ["Employees"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Employee",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/employee"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Fire Employee",
+        "description": "Endpoint to fire employee",
+        "tags": [
+          "Employees"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fired employee",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/employee_fired"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Hire Employee",
+        "description": "Endpoint to hire employee",
+        "tags": [
+          "Employees"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/employee_dto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Hired employee",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/employee_hired"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounts/employees": {
+      "get": {
+        "summary": "Get All Employees",
+        "description": "Returns a list of employees or a single employee if id query parameter is provided",
+        "tags": [
+          "Employees"
+        ],
+        "responses": {
+          "200": {
+            "description": "Employee's array",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/employee"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounts/role": {
+      "put": {
+        "summary": "Set role for Employee",
+        "description": "Endpoint for setting role to employee",
+        "tags": ["Employees"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "role": {
+                    "type": "string",
+                    "required": true,
+                    "example": "crew"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Employee",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/employee"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounts/update": {
+      "patch": {
+        "summary": "Update Employee's data",
+        "description": "Endpoint for updating employee's first name and last name",
+        "tags": ["Employees"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/employee_update"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Employee",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/employee"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounts/password":{
+      "patch": {
+        "summary": "Change Employee's password",
+        "description": "Endpoint for changing employee's password",
+        "tags": ["Employees"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/employee_passw"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/shift/staff": {
+      "get": {
+        "summary": "Get current Shift staff",
+        "description": "Endpoint for getting all employees current shift",
+        "tags": ["Shifts"],
+        "responses": {
+          "200": {
+            "description": "Shift's array",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                        "$ref": "#/components/schemas/shift"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shift/employee_shift": {
+      "get": {
+        "summary": "Get employee current Shift",
+        "description": "Endpoint for getting employee shift by tab number",
+        "tags": ["Shifts"],
+        "parameters": [{
+          "name": "tabNum",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "Shift",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/shift"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shift/start": {
+      "post": {
+        "summary": "Start employee Shift",
+        "description": "Endpoint for starting employee's shift",
+        "tags": ["Shifts"],
+        "parameters": [{
+          "name": "tabNum",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "Employee tab number + time",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/tabNum"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shift/finish":{
+      "post": {
+        "summary": "Finish employee Shift",
+        "description": "Endpoint for closing employee's shift",
+        "tags": ["Shifts"],
+        "parameters": [{
+          "name": "tabNum",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "Employee tab number + time",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/tabNum"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shift/break": {
+      "put": {
+        "summary": "Set break for employee Shift",
+        "description": "Endpoint for setting up 15/30 minutes breaks during employee current shift",
+        "tags": ["Shifts"],
+        "parameters": [
+          {
+          "name": "tabNum",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+          {
+            "name": "breakDur",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "example": 15
+            }
+          }],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "employee": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "123456789"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Snow"
+          },
+          "tab_num": {
+            "type": "string",
+            "example": "515ef190-a7b5-4182-942a-70ebda1f46a3"
+          },
+          "hash": {
+            "type": "string",
+            "example": "1234567821jkdo13d3"
+          },
+          "roles": {
+            "type": "string",
+            "example": "crew"
+          }
+        }
+      },
+      "employee_fired": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "required": true,
+            "example": "123456789"
+          },
+          "firstName": {
+            "type": "string",
+            "required": true,
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "required": true,
+            "example": "Snow"
+          },
+          "tab_num": {
+            "type": "string",
+            "required": true,
+            "example": "515ef190-a7b5-4182-942a-70ebda1f46a3"
+          },
+          "fireDate": {
+            "type": "string",
+            "example": "2025-10-12"
+          }
+        }
+      },
+      "employee_dto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "123456789"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Snow"
+          },
+          "password": {
+            "type": "string",
+            "example": "67821jkdo13d3"
+          }
+        }
+      },
+      "employee_hired": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "123456789"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Snow"
+          },
+          "tab_num": {
+            "type": "string",
+            "example": "515ef190-a7b5-4182-942a-70ebda1f46a3"
+          },
+          "hash": {
+            "type": "string",
+            "example": "sdds15sd5sxr5wregrh54ce8fceDra1"
+          },
+          "roles": {
+            "type": "string",
+            "example": "crew"
+          }
+        }
+      },
+      "employee_update": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Snow"
+          }
+        }
+      },
+      "employee_passw": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "required": true,
+            "example": "123456789"
+          },
+          "newPassword": {
+            "type": "string",
+            "example": "987654321"
+          }
+        }
+      },
+      "shift": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "number",
+            "example": "123456789"
+          },
+          "table_num": {
+            "type": "string",
+            "example": "515ef190-a7b5-4182-942a-70ebda1f46a3"
+          },
+          "startShift": {
+            "type": "number",
+            "example": "07:00:00 GMT+0300 (Israel Daylight Time)"
+          },
+          "finishShift": {
+            "type": "number",
+            "nullable": true,
+            "example": null
+          },
+          "shiftDuration": {
+            "type": "number",
+            "example": "3600"
+          },
+          "breaks": {
+            "type": "number",
+            "example": "15"
+          },
+          "monthHours": {
+            "type": "number",
+            "example": "180"
+          },
+          "correct": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          }
+        }
+      },
+      "tabNum": {
+        "type": "object",
+        "properties": {
+          "tabNum":{
+            "type": "string",
+            "example": "515ef190-a7b5-4182-942a-70ebda1f46a3"
+          },
+          "time": {
+            "type": "number",
+            "example": "17:49:48 GMT+0300 (Israel Daylight Time)"
+          }
+        }
+      }
+    }
+  }
+}

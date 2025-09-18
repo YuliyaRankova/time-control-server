@@ -2,7 +2,7 @@ import {Request, Response} from 'express';
 import {Employee, EmployeeDto, UpdateEmployeeDto} from "../model/Employee.js";
 import {checkRole, convertEmployeeDtoToEmployee, formatTimeStamp} from "../utils/tools.js";
 import {accountService} from "../services/accountingService/accountServiceImplMongo.js";
-import {consoleLogger} from "../Logger/winston.js";
+import {logger} from "../Logger/winston.js";
 
 
 export const hireEmployee = async (req: Request, res: Response) => {
@@ -27,7 +27,7 @@ export const updateEmployee = async (req: Request, res: Response) => {
 
 export const changePassword = async (req: Request, res: Response) => {
     const {id, newPassword} = req.body;
-    consoleLogger.info(`id: ${id}, newPassword: ${newPassword}`);
+    logger.debug(`id: ${id}, newPassword: ${newPassword}`)
     await accountService.changePassword(id, newPassword);
     res.status(200).send();
 };
@@ -46,7 +46,7 @@ export const getAllEmployees = async (req: Request, res: Response) => {
 export const setRole = async (req: Request, res: Response) => {
     const {id} = req.query;
     const role = checkRole(req.body.role);
-    consoleLogger.info(`role: ${role}`)
+    logger.debug(`role: ${role}`);
     const result = await accountService.setRole(id as string, role);
     res.json(result);
 };

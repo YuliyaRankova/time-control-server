@@ -3,11 +3,12 @@ import {CrewShift, TabNumTime} from "../../model/Shift.js";
 import {HttpError} from "../../errorHandler/HttpError.js";
 import {ShiftModel} from "../../model/ShiftMongooseModel.js";
 import {generateShiftId, getMonthHours} from "../../utils/tools.js";
-import {consoleLogger, logger} from "../../Logger/winston.js";
+import {logger} from "../../Logger/winston.js";
 
 export class ShiftControlImplMongo implements ShiftControlService{
 
     async startShift(tabNum: string): Promise<TabNumTime> {
+        logger.info("service started to process request");
         const shifts = await ShiftModel.find({table_num:tabNum}).exec();
         if(!shifts) throw new HttpError(404, "Shift not found");
 
@@ -37,6 +38,7 @@ export class ShiftControlImplMongo implements ShiftControlService{
         };
         const newShiftDoc = new ShiftModel(newShift);
         await newShiftDoc.save();
+        logger.info(`Shift for tab number: ${tabNum} created`);
         return {tabNum, time: new Date(currentTime).toTimeString()}
     };
 
@@ -64,7 +66,7 @@ export class ShiftControlImplMongo implements ShiftControlService{
             {$inc: {breaks: breakDur}},
             {new:true}
         ).exec();
-        consoleLogger.info(`${updated}`);
+        logger.debug(`${updated}`);
     };
 
 
@@ -81,7 +83,7 @@ export class ShiftControlImplMongo implements ShiftControlService{
                  ...emp,
                  _id: emp._id as number,
                  table_num: emp.table_num as string,
-                 startShift: emp.startShift as number,
+                 startShift: emp.startShift as number
         }));
         return currStaff;
     };
@@ -90,7 +92,6 @@ export class ShiftControlImplMongo implements ShiftControlService{
     async getEmployeeShift(tabNum: string): Promise<CrewShift> {
         const shiftDoc = await ShiftModel.findOne({table_num: tabNum}).lean().exec();
         if(!shiftDoc) throw new HttpError(404, `Employee with tab num: ${tabNum} not found`);
-
         return shiftDoc as CrewShift;
     };
 

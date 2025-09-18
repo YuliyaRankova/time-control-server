@@ -12,7 +12,6 @@ describe('AccountServiceMongoImpl.getAllEmployees', () => {
         table_num:"tab_num",
         fireDate:"now",
     };
-    const mockSavedFiredEmployees = [mockEmployee];
 
     test('Failed test: Employees not found', async () => {
         (EmployeeModel.find as jest.Mock).mockReturnValue({
@@ -23,7 +22,7 @@ describe('AccountServiceMongoImpl.getAllEmployees', () => {
 
     test('Passed test', async () => {
         (EmployeeModel.find as jest.Mock).mockReturnValue({
-            exec: jest.fn().mockResolvedValue(mockSavedFiredEmployees)
+            exec: jest.fn().mockResolvedValue([mockEmployee])
         });
         const employees = await service.getAllEmployees();
         expect(employees).toHaveLength(1);

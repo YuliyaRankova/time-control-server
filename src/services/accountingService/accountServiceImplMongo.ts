@@ -3,8 +3,8 @@ import {Employee, EmployeeDto, SavedFiredEmployee, UpdateEmployeeDto} from "../.
 import {EmployeeModel, FiredEmployeeModel} from "../../model/EmployeeMongooseModel.js";
 import {HttpError} from "../../errorHandler/HttpError.js";
 import {checkFiredEmployees, checkRole, convertEmployeeToFiredEmployee} from "../../utils/tools.js";
-import {consoleLogger} from "../../Logger/winston.js";
 import bcrypt from "bcryptjs";
+import {logger} from "../../Logger/winston.js";
 
 export class AccountServiceImplMongo implements AccountingService{
 
@@ -60,7 +60,7 @@ export class AccountServiceImplMongo implements AccountingService{
             $set: {roles: newRole}},
             {new: true})
             .exec();
-        consoleLogger.info(`updated: ${updated}`)
+        logger.debug(`updated: ${updated}`);
         if (!updated) throw new HttpError(404, "Employee updating failed!");
         return updated as Employee;
     };
